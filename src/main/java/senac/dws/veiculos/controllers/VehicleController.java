@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import senac.dws.veiculos.entities.Vehicle;
+import senac.dws.veiculos.exceptions.VehicleException;
 import senac.dws.veiculos.repositories.VehicleRepository;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class VehicleController {
     @Operation(summary = "Busca um veiculo pelo ID")
     @GetMapping("/{id}")
     public Vehicle getVehicle(@PathVariable long id) {
-        return vehicleRepository.findById(id).orElse(null);
+        return vehicleRepository.findById(id).orElseThrow(() -> new VehicleException("Veiculo não encontrado"));
     }
 
     // CRIAR
