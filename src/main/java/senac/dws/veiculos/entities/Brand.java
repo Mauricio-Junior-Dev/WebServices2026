@@ -1,7 +1,6 @@
 package senac.dws.veiculos.entities;
 
 import jakarta.persistence.*;
-import org.springframework.data.annotation.Id;
 
 @Entity
 public class Brand {
@@ -11,7 +10,34 @@ public class Brand {
 
     private String name;
 
-    @OneToMany
+    public Brand() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public void setCountry(Country country) {
+        this.country = country;
+    }
+
+    @ManyToOne
     @JoinColumn(name = "country_id")
     private Country country;
 }
