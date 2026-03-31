@@ -20,6 +20,7 @@ public class VehicleController {
     public VehicleController(VehicleRepository vehicleRepository) {
         this.vehicleRepository = vehicleRepository;
     }
+
     //LISTAR
     @Operation(summary = "Lista de todos os veiculos cadastrados")
     @GetMapping
@@ -38,7 +39,8 @@ public class VehicleController {
     @Operation(summary = "Cria um novo veiculo")
     @PostMapping
     public Vehicle createVehicle(@RequestBody Vehicle vehicle) {
-        return vehicleRepository.save(vehicle);
+        Vehicle saved  = vehicleRepository.save(vehicle);
+        return ResponseEntity.status(201).body(saved).getBody();
     }
 
     // ATUALIZAR
