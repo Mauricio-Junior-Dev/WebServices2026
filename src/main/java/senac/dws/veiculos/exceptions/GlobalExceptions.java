@@ -22,4 +22,3 @@ public class GlobalExceptions {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 }
-ch
