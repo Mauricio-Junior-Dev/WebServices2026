@@ -36,7 +36,7 @@ public class CountryController {
     public ResponseEntity<?> create(@RequestBody Country country) {
         if (repository.existsByNameIgnoreCase(country.getName())) {
             return ResponseEntity
-                    .unprocessableContent()
+                    .unprocessableEntity()
                     .body("Pais ja cadastrado");
         }
         Country saved = repository.save(country);
