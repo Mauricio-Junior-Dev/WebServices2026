@@ -15,4 +15,6 @@ public interface CountryRepository extends JpaRepository<Country, Long>, PagingA
     Page<Country> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
     boolean existsByNameIgnoreCase(String name);
+
+    boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
 }

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import senac.dws.veiculos.entities.FuelType;
+import senac.dws.veiculos.exceptions.EntidadeJaCadastradaException;
 import senac.dws.veiculos.exceptions.FuelTypeException;
 import senac.dws.veiculos.repositories.FuelTypeRepository;
 
@@ -34,11 +35,17 @@ public class FuelTypeService {
     }
 
     public FuelType create(FuelType fuelType) {
+        if (fuelTypeRepository.existsByNameIgnoreCase(fuelType.getName())) {
+            throw new EntidadeJaCadastradaException("Já existe um tipo de combustível cadastrado com este nome.");
+        }
         return fuelTypeRepository.save(fuelType);
     }
 
     public FuelType update(Long id, FuelType input) {
         FuelType fuelType = findById(id);
+        if (fuelTypeRepository.existsByNameIgnoreCaseAndIdNot(input.getName(), id)) {
+            throw new EntidadeJaCadastradaException("Já existe um tipo de combustível cadastrado com este nome.");
+        }
         fuelType.setName(input.getName());
         return fuelTypeRepository.save(fuelType);
     }

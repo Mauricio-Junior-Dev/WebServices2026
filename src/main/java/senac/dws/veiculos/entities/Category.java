@@ -16,10 +16,10 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Schema(description = "Nome da categoria", example = "SUV compacto", minLength = 2, maxLength = 80)
+    @Schema(description = "Nome da categoria (obrigatório e único)", example = "SUV compacto", minLength = 2, maxLength = 80)
     @NotBlank
     @Size(min = 2, max = 80)
-    @Column(nullable = false, length = 80)
+    @Column(nullable = false, unique = true, length = 80)
     private String name;
 
     public Category() {

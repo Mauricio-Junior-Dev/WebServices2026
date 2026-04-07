@@ -8,6 +8,7 @@ import senac.dws.veiculos.entities.Documentacao;
 import senac.dws.veiculos.entities.Vehicle;
 import senac.dws.veiculos.exceptions.ConflictException;
 import senac.dws.veiculos.exceptions.DocumentacaoException;
+import senac.dws.veiculos.exceptions.EntidadeJaCadastradaException;
 import senac.dws.veiculos.exceptions.InvalidRequestException;
 import senac.dws.veiculos.exceptions.VehicleException;
 import senac.dws.veiculos.repositories.DocumentacaoRepository;
@@ -38,7 +39,7 @@ public class DocumentacaoService {
 
     public Documentacao create(Documentacao input) {
         if (documentacaoRepository.existsByNumeroRegistro(input.getNumeroRegistro())) {
-            throw new ConflictException("Número de registro já cadastrado");
+            throw new EntidadeJaCadastradaException("Já existe documentação cadastrada com este número de registro.");
         }
         Vehicle vehicle = vehicleRepository.findById(requireVehicleId(input))
                 .orElseThrow(() -> new VehicleException("Veículo não encontrado"));
@@ -56,7 +57,7 @@ public class DocumentacaoService {
     public Documentacao update(Long id, Documentacao input) {
         Documentacao doc = findById(id);
         if (documentacaoRepository.existsByNumeroRegistroAndIdNot(input.getNumeroRegistro(), id)) {
-            throw new ConflictException("Número de registro já cadastrado");
+            throw new EntidadeJaCadastradaException("Já existe documentação cadastrada com este número de registro.");
         }
         doc.setNumeroRegistro(input.getNumeroRegistro());
         doc.setObservacao(input.getObservacao());

@@ -5,8 +5,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import senac.dws.veiculos.entities.Country;
-import senac.dws.veiculos.exceptions.ConflictException;
 import senac.dws.veiculos.exceptions.CountryException;
+import senac.dws.veiculos.exceptions.EntidadeJaCadastradaException;
 import senac.dws.veiculos.repositories.CountryRepository;
 
 import java.util.List;
@@ -38,16 +38,15 @@ public class CountryService {
 
     public Country create(Country country) {
         if (countryRepository.existsByNameIgnoreCase(country.getName())) {
-            throw new ConflictException("País já cadastrado");
+            throw new EntidadeJaCadastradaException("Já existe um país cadastrado com este nome.");
         }
         return countryRepository.save(country);
     }
 
     public Country update(Long id, Country input) {
         Country country = findById(id);
-        if (!country.getName().equalsIgnoreCase(input.getName())
-                && countryRepository.existsByNameIgnoreCase(input.getName())) {
-            throw new ConflictException("País já cadastrado");
+        if (countryRepository.existsByNameIgnoreCaseAndIdNot(input.getName(), id)) {
+            throw new EntidadeJaCadastradaException("Já existe um país cadastrado com este nome.");
         }
         country.setName(input.getName());
         return countryRepository.save(country);

@@ -16,7 +16,7 @@ public class Country {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Schema(description = "Nome oficial ou usual do país", example = "Brasil", minLength = 2, maxLength = 80)
+    @Schema(description = "Nome do país (obrigatório e único no sistema)", example = "Brasil", minLength = 2, maxLength = 80)
     @NotBlank
     @Size(min = 2, max = 80)
     @Column(unique = true, nullable = false, length = 80)

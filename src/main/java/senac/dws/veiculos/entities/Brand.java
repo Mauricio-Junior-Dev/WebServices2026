@@ -16,10 +16,10 @@ public class Brand {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Schema(description = "Nome da marca", example = "Fiat")
+    @Schema(description = "Nome da marca (obrigatório e único)", example = "Fiat")
     @NotBlank
     @Size(min = 1, max = 80)
-    @Column(nullable = false, length = 80)
+    @Column(nullable = false, unique = true, length = 80)
     private String name;
 
     @Schema(description = "País de origem (ex.: {\"id\": 1})")

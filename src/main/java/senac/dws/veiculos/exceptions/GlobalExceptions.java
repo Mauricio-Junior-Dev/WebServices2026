@@ -34,6 +34,11 @@ public class GlobalExceptions {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    @ExceptionHandler(EntidadeJaCadastradaException.class)
+    public ResponseEntity<Map<String, Object>> handleEntidadeJaCadastrada(EntidadeJaCadastradaException ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<Map<String, Object>> handleConflict(ConflictException ex) {
         return build(HttpStatus.CONFLICT, ex.getMessage());

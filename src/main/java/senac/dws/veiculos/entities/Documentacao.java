@@ -18,7 +18,7 @@ public class Documentacao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Schema(description = "Número único de registro da documentação", example = "BR-REG-2024-8899")
+    @Schema(description = "Número de registro da documentação (obrigatório e único em todo o sistema)", example = "BR-REG-2024-8899")
     @NotBlank
     @Size(min = 3, max = 40)
     @Column(nullable = false, unique = true, length = 40)

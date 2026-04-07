@@ -9,4 +9,8 @@ import senac.dws.veiculos.entities.FuelType;
 public interface FuelTypeRepository extends JpaRepository<FuelType, Long>, PagingAndSortingRepository<FuelType, Long> {
 
     Page<FuelType> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+    boolean existsByNameIgnoreCase(String name);
+
+    boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
 }

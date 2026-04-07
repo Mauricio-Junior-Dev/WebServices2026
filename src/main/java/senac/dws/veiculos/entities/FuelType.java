@@ -16,10 +16,10 @@ public class FuelType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Schema(description = "Nome do combustível", example = "Flex (etanol/gasolina)")
+    @Schema(description = "Nome do tipo de combustível (obrigatório e único)", example = "Flex (etanol/gasolina)")
     @NotBlank
     @Size(min = 1, max = 60)
-    @Column(nullable = false, length = 60)
+    @Column(nullable = false, unique = true, length = 60)
     private String name;
 
     public FuelType() {

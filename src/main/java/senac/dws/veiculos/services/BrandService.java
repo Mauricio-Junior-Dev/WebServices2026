@@ -8,6 +8,7 @@ import senac.dws.veiculos.entities.Brand;
 import senac.dws.veiculos.entities.Country;
 import senac.dws.veiculos.exceptions.BrandException;
 import senac.dws.veiculos.exceptions.CountryException;
+import senac.dws.veiculos.exceptions.EntidadeJaCadastradaException;
 import senac.dws.veiculos.exceptions.InvalidRequestException;
 import senac.dws.veiculos.repositories.BrandRepository;
 import senac.dws.veiculos.repositories.CountryRepository;
@@ -42,12 +43,18 @@ public class BrandService {
     }
 
     public Brand create(Brand brand) {
+        if (brandRepository.existsByNameIgnoreCase(brand.getName())) {
+            throw new EntidadeJaCadastradaException("Já existe uma marca cadastrada com este nome.");
+        }
         brand.setCountry(resolveCountry(brand.getCountry()));
         return brandRepository.save(brand);
     }
 
     public Brand update(Long id, Brand input) {
         Brand brand = findById(id);
+        if (brandRepository.existsByNameIgnoreCaseAndIdNot(input.getName(), id)) {
+            throw new EntidadeJaCadastradaException("Já existe uma marca cadastrada com este nome.");
+        }
         brand.setName(input.getName());
         brand.setCountry(resolveCountry(input.getCountry()));
         return brandRepository.save(brand);

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import senac.dws.veiculos.entities.Acessorio;
 import senac.dws.veiculos.exceptions.AcessorioException;
+import senac.dws.veiculos.exceptions.EntidadeJaCadastradaException;
 import senac.dws.veiculos.repositories.AcessorioRepository;
 
 import java.util.List;
@@ -36,11 +37,17 @@ public class AcessorioService {
     }
 
     public Acessorio create(Acessorio acessorio) {
+        if (acessorioRepository.existsByNomeIgnoreCase(acessorio.getNome())) {
+            throw new EntidadeJaCadastradaException("Já existe um acessório cadastrado com este nome.");
+        }
         return acessorioRepository.save(acessorio);
     }
 
     public Acessorio update(Long id, Acessorio input) {
         Acessorio acessorio = findById(id);
+        if (acessorioRepository.existsByNomeIgnoreCaseAndIdNot(input.getNome(), id)) {
+            throw new EntidadeJaCadastradaException("Já existe um acessório cadastrado com este nome.");
+        }
         acessorio.setNome(input.getNome());
         acessorio.setDescricao(input.getDescricao());
         return acessorioRepository.save(acessorio);

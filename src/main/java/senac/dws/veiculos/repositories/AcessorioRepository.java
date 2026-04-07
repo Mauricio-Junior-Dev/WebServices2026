@@ -13,4 +13,8 @@ public interface AcessorioRepository extends JpaRepository<Acessorio, Long>, Pag
     Page<Acessorio> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
 
     List<Acessorio> findByNomeContainingIgnoreCase(String nome);
+
+    boolean existsByNomeIgnoreCase(String nome);
+
+    boolean existsByNomeIgnoreCaseAndIdNot(String nome, Long id);
 }

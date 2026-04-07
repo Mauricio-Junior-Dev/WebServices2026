@@ -1,6 +1,8 @@
 package senac.dws.veiculos.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -9,8 +11,10 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import senac.dws.veiculos.api.ApiErrorResponse;
 import senac.dws.veiculos.entities.Vehicle;
 import senac.dws.veiculos.hateoas.VehicleModelAssembler;
 import senac.dws.veiculos.services.VehicleService;
@@ -52,6 +56,12 @@ public class VehicleController {
     @ApiResponse(responseCode = "201", description = "Criado")
     @ApiResponse(responseCode = "400", description = "Requisição inválida")
     @ApiResponse(responseCode = "404", description = "Recurso relacionado não encontrado")
+    @ApiResponse(
+            responseCode = "409",
+            description = "Conflito: Já existe um registro com este nome/identificador",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @PostMapping
     public ResponseEntity<EntityModel<Vehicle>> create(@Valid @RequestBody Vehicle vehicle) {
         Vehicle saved = vehicleService.create(vehicle);
