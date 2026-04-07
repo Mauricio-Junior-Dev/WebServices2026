@@ -1,97 +1,119 @@
 package senac.dws.veiculos.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import senac.dws.veiculos.entities.Vehicle;
-import senac.dws.veiculos.exceptions.VehicleException;
-import senac.dws.veiculos.repositories.VehicleRepository;
+import senac.dws.veiculos.hateoas.VehicleModelAssembler;
+import senac.dws.veiculos.services.VehicleService;
 
-import java.util.List;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-@Tag(name = "Vehicles", description = "API de gerenciamento de veículos")
+@Tag(name = "Veículos", description = "CRUD e consultas de veículos")
 @RestController
 @RequestMapping("/vehicles")
 public class VehicleController {
 
-    private final VehicleRepository vehicleRepository;
+    private final VehicleService vehicleService;
+    private final VehicleModelAssembler assembler;
 
-    public VehicleController(VehicleRepository vehicleRepository) {
-        this.vehicleRepository = vehicleRepository;
+    public VehicleController(VehicleService vehicleService, VehicleModelAssembler assembler) {
+        this.vehicleService = vehicleService;
+        this.assembler = assembler;
     }
 
-    //LISTAR
-    @Operation(summary = "Lista de todos os veiculos cadastrados")
+    @Operation(summary = "Lista veículos com paginação e ordenação")
+    @ApiResponse(responseCode = "200", description = "Página de veículos")
     @GetMapping
-    public List<Vehicle> getVehicles() {
-        return vehicleRepository.findAll();
+    public ResponseEntity<PagedModel<EntityModel<Vehicle>>> list(Pageable pageable,
+                                                                 PagedResourcesAssembler<Vehicle> pagedResourcesAssembler) {
+        var page = vehicleService.findAll(pageable);
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(page, assembler));
     }
 
-    //BUSCAR POR ID
-    @Operation(summary = "Busca um veiculo pelo ID")
+    @Operation(summary = "Busca veículo por id")
+    @ApiResponse(responseCode = "200", description = "Veículo encontrado")
+    @ApiResponse(responseCode = "404", description = "Não encontrado")
     @GetMapping("/{id}")
-    public Vehicle getVehicle(@PathVariable long id) {
-        return vehicleRepository.findById(id).orElseThrow(() -> new VehicleException("Veiculo não encontrado"));
+    public ResponseEntity<EntityModel<Vehicle>> getById(@PathVariable long id) {
+        Vehicle v = vehicleService.findById(id);
+        return ResponseEntity.ok(assembler.toModel(v));
     }
 
-    // CRIAR
-    @Operation(summary = "Cria um novo veiculo")
+    @Operation(summary = "Cria veículo")
+    @ApiResponse(responseCode = "201", description = "Criado")
+    @ApiResponse(responseCode = "400", description = "Requisição inválida")
+    @ApiResponse(responseCode = "404", description = "Recurso relacionado não encontrado")
     @PostMapping
-    public Vehicle createVehicle(@RequestBody Vehicle vehicle) {
-        Vehicle saved  = vehicleRepository.save(vehicle);
-        return ResponseEntity.status(201).body(saved).getBody();
+    public ResponseEntity<EntityModel<Vehicle>> create(@Valid @RequestBody Vehicle vehicle) {
+        Vehicle saved = vehicleService.create(vehicle);
+        EntityModel<Vehicle> model = assembler.toModel(vehicleService.findById(saved.getId()));
+        return ResponseEntity.status(201)
+                .location(model.getRequiredLink("self").toUri())
+                .body(model);
     }
 
-    // ATUALIZAR
-    @Operation(summary = "Atualiza um veiculo existente pelo ID")
+    @Operation(summary = "Atualiza veículo")
+    @ApiResponse(responseCode = "200", description = "Atualizado")
+    @ApiResponse(responseCode = "400", description = "Requisição inválida")
+    @ApiResponse(responseCode = "404", description = "Não encontrado")
     @PutMapping("/{id}")
-    public ResponseEntity<Vehicle> updateVehicle(@PathVariable Long id, @RequestBody Vehicle updatedVehicle) {
-
-        return vehicleRepository.findById(id).map(vehicle -> {
-            vehicle.setName(updatedVehicle.getName());
-            vehicle.setYear(updatedVehicle.getYear());
-            vehicle.setPrice(updatedVehicle.getPrice());
-            vehicle.setBrand(updatedVehicle.getBrand());
-            vehicle.setCategory(updatedVehicle.getCategory());
-            vehicle.setEngine(updatedVehicle.getEngine());
-
-            return ResponseEntity.ok(vehicleRepository.save(vehicle));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<EntityModel<Vehicle>> update(@PathVariable Long id,
+                                                       @Valid @RequestBody Vehicle vehicle) {
+        Vehicle saved = vehicleService.update(id, vehicle);
+        return ResponseEntity.ok(assembler.toModel(vehicleService.findById(saved.getId())));
     }
 
-    // DELETAR
-    @Operation(summary = "Deleta um veiculo existente pelo ID")
+    @Operation(summary = "Remove veículo")
+    @ApiResponse(responseCode = "204", description = "Removido")
+    @ApiResponse(responseCode = "404", description = "Não encontrado")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
-        var vehicle = vehicleRepository.findById(id).orElse(null);
-
-        if (vehicle == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        vehicleRepository.delete(vehicle);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        vehicleService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
-    //BUSCA POR NOME
-    @Operation(summary = "Busca veiculos pelo nome, utilizando busca parcial e ignorando maiúsculas/minúsculas")
+    @Operation(summary = "Busca por nome (lista, sem paginação)")
+    @ApiResponse(responseCode = "200", description = "Resultados")
     @GetMapping("/search")
-    public List<Vehicle> searchByName(@RequestParam String name) {
-        return vehicleRepository.findByNameContainingIgnoreCase(name);
+    public ResponseEntity<CollectionModel<EntityModel<Vehicle>>> searchByName(@RequestParam String name) {
+        var list = vehicleService.searchByName(name).stream()
+                .map(assembler::toModel)
+                .toList();
+        CollectionModel<EntityModel<Vehicle>> cm = CollectionModel.of(list);
+        cm.add(linkTo(VehicleController.class).withRel("collection"));
+        return ResponseEntity.ok(cm);
     }
 
-    //BUSCA POR ANO
-    @Operation(summary = "Busca veiculos pelo ano de fabricação")
+    @Operation(summary = "Busca por ano")
+    @ApiResponse(responseCode = "200", description = "Resultados")
     @GetMapping("/year/{year}")
-    public List<Vehicle> getByYear(@PathVariable Integer year) {
-        return vehicleRepository.findByYear(year);
+    public ResponseEntity<CollectionModel<EntityModel<Vehicle>>> getByYear(@PathVariable Integer year) {
+        var list = vehicleService.findByYear(year).stream()
+                .map(assembler::toModel)
+                .toList();
+        CollectionModel<EntityModel<Vehicle>> cm = CollectionModel.of(list);
+        cm.add(linkTo(VehicleController.class).withRel("collection"));
+        return ResponseEntity.ok(cm);
     }
 
-    //BUSCA POR MARCAR
-    @Operation(summary = "Busca veiculos pela marca, utilizando o ID da marca")
+    @Operation(summary = "Busca por marca")
+    @ApiResponse(responseCode = "200", description = "Resultados")
     @GetMapping("/brand/{id}")
-    public List<Vehicle> getByBrand(@PathVariable Long id) {
-        return vehicleRepository.findByBrandId(id);
+    public ResponseEntity<CollectionModel<EntityModel<Vehicle>>> getByBrand(@PathVariable Long id) {
+        var list = vehicleService.findByBrandId(id).stream()
+                .map(assembler::toModel)
+                .toList();
+        CollectionModel<EntityModel<Vehicle>> cm = CollectionModel.of(list);
+        cm.add(linkTo(VehicleController.class).withRel("collection"));
+        return ResponseEntity.ok(cm);
     }
 }

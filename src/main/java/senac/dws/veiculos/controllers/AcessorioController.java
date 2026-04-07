@@ -1,0 +1,88 @@
+package senac.dws.veiculos.controllers;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import senac.dws.veiculos.entities.Acessorio;
+import senac.dws.veiculos.hateoas.AcessorioModelAssembler;
+import senac.dws.veiculos.services.AcessorioService;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+
+@Tag(name = "Acessórios", description = "CRUD de acessórios (N:N com veículos)")
+@RestController
+@RequestMapping("/acessorios")
+public class AcessorioController {
+
+    private final AcessorioService acessorioService;
+    private final AcessorioModelAssembler assembler;
+
+    public AcessorioController(AcessorioService acessorioService, AcessorioModelAssembler assembler) {
+        this.acessorioService = acessorioService;
+        this.assembler = assembler;
+    }
+
+    @Operation(summary = "Lista acessórios paginado")
+    @ApiResponse(responseCode = "200", description = "Página")
+    @GetMapping
+    public ResponseEntity<PagedModel<EntityModel<Acessorio>>> list(Pageable pageable,
+                                                                   PagedResourcesAssembler<Acessorio> pagedResourcesAssembler) {
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(acessorioService.findAll(pageable), assembler));
+    }
+
+    @Operation(summary = "Busca por id")
+    @ApiResponse(responseCode = "200", description = "Encontrado")
+    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @GetMapping("/{id}")
+    public ResponseEntity<EntityModel<Acessorio>> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(assembler.toModel(acessorioService.findById(id)));
+    }
+
+    @Operation(summary = "Cria acessório")
+    @ApiResponse(responseCode = "201", description = "Criado")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @PostMapping
+    public ResponseEntity<EntityModel<Acessorio>> create(@Valid @RequestBody Acessorio acessorio) {
+        Acessorio saved = acessorioService.create(acessorio);
+        EntityModel<Acessorio> model = assembler.toModel(acessorioService.findById(saved.getId()));
+        return ResponseEntity.status(201)
+                .location(model.getRequiredLink("self").toUri())
+                .body(model);
+    }
+
+    @Operation(summary = "Atualiza acessório")
+    @ApiResponse(responseCode = "200", description = "Atualizado")
+    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @PutMapping("/{id}")
+    public ResponseEntity<EntityModel<Acessorio>> update(@PathVariable Long id, @Valid @RequestBody Acessorio acessorio) {
+        Acessorio saved = acessorioService.update(id, acessorio);
+        return ResponseEntity.ok(assembler.toModel(acessorioService.findById(saved.getId())));
+    }
+
+    @Operation(summary = "Remove acessório")
+    @ApiResponse(responseCode = "204", description = "Removido")
+    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        acessorioService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Busca por nome (lista)")
+    @ApiResponse(responseCode = "200", description = "Resultados")
+    @GetMapping("/search")
+    public ResponseEntity<CollectionModel<EntityModel<Acessorio>>> search(@RequestParam String nome) {
+        var list = acessorioService.searchByNome(nome).stream().map(assembler::toModel).toList();
+        CollectionModel<EntityModel<Acessorio>> cm = CollectionModel.of(list);
+        cm.add(linkTo(AcessorioController.class).withRel("collection"));
+        return ResponseEntity.ok(cm);
+    }
+}

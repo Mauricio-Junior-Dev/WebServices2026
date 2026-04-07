@@ -1,73 +1,90 @@
 package senac.dws.veiculos.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import senac.dws.veiculos.entities.Country;
-import senac.dws.veiculos.exceptions.CountryException;
-import senac.dws.veiculos.repositories.CountryRepository;
+import senac.dws.veiculos.hateoas.CountryModelAssembler;
+import senac.dws.veiculos.services.CountryService;
 
-import java.util.List;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
+@Tag(name = "Países", description = "CRUD de países")
 @RestController
 @RequestMapping("/countries")
 public class CountryController {
 
-    private final CountryRepository repository;
+    private final CountryService countryService;
+    private final CountryModelAssembler assembler;
 
-    public CountryController(CountryRepository repository) {
-        this.repository = repository;
+    public CountryController(CountryService countryService, CountryModelAssembler assembler) {
+        this.countryService = countryService;
+        this.assembler = assembler;
     }
 
-    // LISTAR TODOS
+    @Operation(summary = "Lista países paginado")
+    @ApiResponse(responseCode = "200", description = "Página")
     @GetMapping
-    public List<Country> getAll() {
-        return repository.findAll();
+    public ResponseEntity<PagedModel<EntityModel<Country>>> list(Pageable pageable,
+                                                                   PagedResourcesAssembler<Country> pagedResourcesAssembler) {
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(countryService.findAll(pageable), assembler));
     }
 
-    // BUSCAR POR ID
+    @Operation(summary = "Busca país por id")
+    @ApiResponse(responseCode = "200", description = "Encontrado")
+    @ApiResponse(responseCode = "404", description = "Não encontrado")
     @GetMapping("/{id}")
-    public Country getById(@PathVariable Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new CountryException("País não encontrado"));
+    public ResponseEntity<EntityModel<Country>> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(assembler.toModel(countryService.findById(id)));
     }
 
-    // CRIAR
+    @Operation(summary = "Cria país")
+    @ApiResponse(responseCode = "201", description = "Criado")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @ApiResponse(responseCode = "409", description = "Nome já cadastrado")
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Country country) {
-        if (repository.existsByNameIgnoreCase(country.getName())) {
-            return ResponseEntity
-                    .unprocessableEntity()
-                    .body("Pais ja cadastrado");
-        }
-        Country saved = repository.save(country);
-        return ResponseEntity.status(201).body(saved);
+    public ResponseEntity<EntityModel<Country>> create(@Valid @RequestBody Country country) {
+        Country saved = countryService.create(country);
+        EntityModel<Country> model = assembler.toModel(countryService.findById(saved.getId()));
+        return ResponseEntity.status(201)
+                .location(model.getRequiredLink("self").toUri())
+                .body(model);
     }
 
-    // ATUALIZAR
+    @Operation(summary = "Atualiza país")
+    @ApiResponse(responseCode = "200", description = "Atualizado")
+    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @ApiResponse(responseCode = "409", description = "Conflito de nome")
     @PutMapping("/{id}")
-    public ResponseEntity<Country> update(@PathVariable Long id, @RequestBody Country updated) {
-
-        return repository.findById(id).map(country -> {
-            country.setName(updated.getName());
-            return ResponseEntity.ok(repository.save(country));
-        }).orElseThrow(() -> new CountryException("País não encontrado"));
+    public ResponseEntity<EntityModel<Country>> update(@PathVariable Long id, @Valid @RequestBody Country country) {
+        Country saved = countryService.update(id, country);
+        return ResponseEntity.ok(assembler.toModel(countryService.findById(saved.getId())));
     }
 
-    // DELETAR
+    @Operation(summary = "Remove país")
+    @ApiResponse(responseCode = "204", description = "Removido")
+    @ApiResponse(responseCode = "404", description = "Não encontrado")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-
-        Country country = repository.findById(id)
-                .orElseThrow(() -> new CountryException("País não encontrado"));
-
-        repository.delete(country);
-
+        countryService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    // BUSCA POR NOME
+    @Operation(summary = "Busca países por nome")
+    @ApiResponse(responseCode = "200", description = "Resultados")
     @GetMapping("/search")
-    public List<Country> search(@RequestParam String name) {
-        return repository.findByNameContainingIgnoreCase(name);
+    public ResponseEntity<CollectionModel<EntityModel<Country>>> search(@RequestParam String name) {
+        var list = countryService.searchByName(name).stream().map(assembler::toModel).toList();
+        CollectionModel<EntityModel<Country>> cm = CollectionModel.of(list);
+        cm.add(linkTo(CountryController.class).withRel("collection"));
+        return ResponseEntity.ok(cm);
     }
 }

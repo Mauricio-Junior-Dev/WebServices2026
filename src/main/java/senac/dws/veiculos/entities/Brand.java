@@ -1,6 +1,11 @@
 package senac.dws.veiculos.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+import java.util.Objects;
 
 @Entity
 public class Brand {
@@ -8,7 +13,15 @@ public class Brand {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
+    @Size(min = 1, max = 80)
+    @Column(nullable = false, length = 80)
     private String name;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "country_id", nullable = false)
+    private Country country;
 
     public Brand() {
     }
@@ -37,7 +50,15 @@ public class Brand {
         this.country = country;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "country_id")
-    private Country country;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Brand brand)) return false;
+        return id != null && id.equals(brand.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

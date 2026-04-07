@@ -1,0 +1,85 @@
+package senac.dws.veiculos.controllers;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import senac.dws.veiculos.entities.Engine;
+import senac.dws.veiculos.hateoas.EngineModelAssembler;
+import senac.dws.veiculos.services.EngineService;
+
+@Tag(name = "Motores", description = "CRUD de motores")
+@RestController
+@RequestMapping("/engines")
+public class EngineController {
+
+    private final EngineService engineService;
+    private final EngineModelAssembler assembler;
+
+    public EngineController(EngineService engineService, EngineModelAssembler assembler) {
+        this.engineService = engineService;
+        this.assembler = assembler;
+    }
+
+    @Operation(summary = "Lista motores paginado")
+    @ApiResponse(responseCode = "200", description = "Página")
+    @GetMapping
+    public ResponseEntity<PagedModel<EntityModel<Engine>>> list(Pageable pageable,
+                                                                PagedResourcesAssembler<Engine> pagedResourcesAssembler) {
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(engineService.findAll(pageable), assembler));
+    }
+
+    @Operation(summary = "Busca motor por id")
+    @ApiResponse(responseCode = "200", description = "Encontrado")
+    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @GetMapping("/{id}")
+    public ResponseEntity<EntityModel<Engine>> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(assembler.toModel(engineService.findById(id)));
+    }
+
+    @Operation(summary = "Cria motor")
+    @ApiResponse(responseCode = "201", description = "Criado")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @ApiResponse(responseCode = "404", description = "Combustível não encontrado")
+    @PostMapping
+    public ResponseEntity<EntityModel<Engine>> create(@Valid @RequestBody Engine engine) {
+        Engine saved = engineService.create(engine);
+        EntityModel<Engine> model = assembler.toModel(engineService.findById(saved.getId()));
+        return ResponseEntity.status(201)
+                .location(model.getRequiredLink("self").toUri())
+                .body(model);
+    }
+
+    @Operation(summary = "Atualiza motor")
+    @ApiResponse(responseCode = "200", description = "Atualizado")
+    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @PutMapping("/{id}")
+    public ResponseEntity<EntityModel<Engine>> update(@PathVariable Long id, @Valid @RequestBody Engine engine) {
+        Engine saved = engineService.update(id, engine);
+        return ResponseEntity.ok(assembler.toModel(engineService.findById(saved.getId())));
+    }
+
+    @Operation(summary = "Remove motor")
+    @ApiResponse(responseCode = "204", description = "Removido")
+    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        engineService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Busca motores por tipo (paginado)")
+    @ApiResponse(responseCode = "200", description = "Página filtrada")
+    @GetMapping("/search")
+    public ResponseEntity<PagedModel<EntityModel<Engine>>> search(@RequestParam String type, Pageable pageable,
+                                                                  PagedResourcesAssembler<Engine> pagedResourcesAssembler) {
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(
+                engineService.searchByType(type, pageable), assembler));
+    }
+}

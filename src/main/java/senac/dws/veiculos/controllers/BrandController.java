@@ -1,67 +1,89 @@
 package senac.dws.veiculos.controllers;
 
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import senac.dws.veiculos.entities.Brand;
-import senac.dws.veiculos.exceptions.BrandException;
-import senac.dws.veiculos.repositories.BrandRepository;
+import senac.dws.veiculos.hateoas.BrandModelAssembler;
+import senac.dws.veiculos.services.BrandService;
 
-import java.util.List;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
+@Tag(name = "Marcas", description = "CRUD de marcas")
 @RestController
 @RequestMapping("/brands")
 public class BrandController {
-    private final BrandRepository brandRepository;
 
-    public BrandController(BrandRepository brandRepository) {
-        this.brandRepository = brandRepository;
+    private final BrandService brandService;
+    private final BrandModelAssembler assembler;
+
+    public BrandController(BrandService brandService, BrandModelAssembler assembler) {
+        this.brandService = brandService;
+        this.assembler = assembler;
     }
 
-    // LISTAR TODAS AS MARCAS
+    @Operation(summary = "Lista marcas paginado")
+    @ApiResponse(responseCode = "200", description = "Página de marcas")
     @GetMapping
-    public List<Brand> getAllBrands() {
-        return brandRepository.findAll();
+    public ResponseEntity<PagedModel<EntityModel<Brand>>> list(Pageable pageable,
+                                                                PagedResourcesAssembler<Brand> pagedResourcesAssembler) {
+        return ResponseEntity.ok(pagedResourcesAssembler.toModel(brandService.findAll(pageable), assembler));
     }
 
-    // BUSCAR POR ID
+    @Operation(summary = "Busca marca por id")
+    @ApiResponse(responseCode = "200", description = "Encontrada")
+    @ApiResponse(responseCode = "404", description = "Não encontrada")
     @GetMapping("/{id}")
-    public Brand getBrandById(@PathVariable Long id) {
-        return brandRepository.findById(id)
-                .orElseThrow(() -> new BrandException("Marca não encontrada"));
+    public ResponseEntity<EntityModel<Brand>> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(assembler.toModel(brandService.findById(id)));
     }
 
-    // CRIAR MARCA
+    @Operation(summary = "Cria marca")
+    @ApiResponse(responseCode = "201", description = "Criada")
+    @ApiResponse(responseCode = "400", description = "Requisição inválida")
+    @ApiResponse(responseCode = "404", description = "País não encontrado")
     @PostMapping
-    public ResponseEntity<Brand> createBrand(@RequestBody Brand brand) {
-        Brand saved = brandRepository.save(brand);
-        return ResponseEntity.status(201).body(saved);
+    public ResponseEntity<EntityModel<Brand>> create(@Valid @RequestBody Brand brand) {
+        Brand saved = brandService.create(brand);
+        EntityModel<Brand> model = assembler.toModel(brandService.findById(saved.getId()));
+        return ResponseEntity.status(201)
+                .location(model.getRequiredLink("self").toUri())
+                .body(model);
     }
 
-    // ATUALIZAR MARCA
+    @Operation(summary = "Atualiza marca")
+    @ApiResponse(responseCode = "200", description = "Atualizada")
+    @ApiResponse(responseCode = "404", description = "Não encontrada")
     @PutMapping("/{id}")
-    public ResponseEntity<Brand> updateBrand(@PathVariable Long id, @RequestBody Brand updatedBrand) {
-
-        return brandRepository.findById(id).map(brand -> {
-            brand.setName(updatedBrand.getName());
-            return ResponseEntity.ok(brandRepository.save(brand));
-        }).orElseThrow(() -> new BrandException("Marca não encontrada"));
+    public ResponseEntity<EntityModel<Brand>> update(@PathVariable Long id, @Valid @RequestBody Brand brand) {
+        Brand saved = brandService.update(id, brand);
+        return ResponseEntity.ok(assembler.toModel(brandService.findById(saved.getId())));
     }
 
-    // DELETAR MARCA
+    @Operation(summary = "Remove marca")
+    @ApiResponse(responseCode = "204", description = "Removida")
+    @ApiResponse(responseCode = "404", description = "Não encontrada")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBrand(@PathVariable Long id) {
-
-        Brand brand = brandRepository.findById(id)
-                .orElseThrow(() -> new BrandException("Marca não encontrada"));
-
-        brandRepository.delete(brand);
-
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        brandService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Busca marcas por nome")
+    @ApiResponse(responseCode = "200", description = "Resultados")
     @GetMapping("/search")
-    public List<Brand> searchBrand(@RequestParam String name) {
-        return brandRepository.findByNameContainingIgnoreCase(name);
+    public ResponseEntity<CollectionModel<EntityModel<Brand>>> search(@RequestParam String name) {
+        var list = brandService.searchByName(name).stream().map(assembler::toModel).toList();
+        CollectionModel<EntityModel<Brand>> cm = CollectionModel.of(list);
+        cm.add(linkTo(BrandController.class).withRel("collection"));
+        return ResponseEntity.ok(cm);
     }
 }
