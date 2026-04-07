@@ -17,7 +17,7 @@ import senac.dws.veiculos.services.CountryService;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-@Tag(name = "Países", description = "CRUD de países")
+@Tag(name = "Country", description = "Operações para manutenção da tabela de países utilizada pelas marcas.")
 @RestController
 @RequestMapping("/countries")
 public class CountryController {

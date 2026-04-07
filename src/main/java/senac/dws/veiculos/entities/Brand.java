@@ -1,5 +1,6 @@
 package senac.dws.veiculos.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -7,17 +8,21 @@ import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
+@Schema(description = "Marca automotiva vinculada a um país de origem.")
 @Entity
 public class Brand {
+    @Schema(description = "Chave primária", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Schema(description = "Nome da marca", example = "Fiat")
     @NotBlank
     @Size(min = 1, max = 80)
     @Column(nullable = false, length = 80)
     private String name;
 
+    @Schema(description = "País de origem (ex.: {\"id\": 1})")
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "country_id", nullable = false)

@@ -14,7 +14,7 @@ import senac.dws.veiculos.entities.Category;
 import senac.dws.veiculos.hateoas.CategoryModelAssembler;
 import senac.dws.veiculos.services.CategoryService;
 
-@Tag(name = "Categorias", description = "CRUD de categorias de veículo")
+@Tag(name = "Category", description = "Operações sobre categorias de veículo (classificação comercial/técnica).")
 @RestController
 @RequestMapping("/categories")
 public class CategoryController {

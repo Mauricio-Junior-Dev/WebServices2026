@@ -1,6 +1,7 @@
 package senac.dws.veiculos.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -9,23 +10,28 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+@Schema(description = "Acessório opcional associável a vários veículos.")
 @Entity
 @Table(name = "acessorio")
 public class Acessorio {
 
+    @Schema(description = "Chave primária", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Schema(description = "Nome do acessório", example = "Ar-condicionado automático")
     @NotBlank
     @Size(min = 2, max = 100)
     @Column(nullable = false, length = 100)
     private String nome;
 
+    @Schema(description = "Detalhes opcionais", example = "Dual zone, filtro de pólen")
     @Size(max = 500)
     @Column(length = 500)
     private String descricao;
 
+    @Schema(description = "Lista de veículos (não exposta na serialização JSON)", hidden = true)
     @ManyToMany(mappedBy = "acessorios")
     @JsonIgnore
     private Set<Vehicle> vehicles = new HashSet<>();

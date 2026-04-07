@@ -14,7 +14,7 @@ import senac.dws.veiculos.entities.Engine;
 import senac.dws.veiculos.hateoas.EngineModelAssembler;
 import senac.dws.veiculos.services.EngineService;
 
-@Tag(name = "Motores", description = "CRUD de motores")
+@Tag(name = "Engine", description = "Operações para cadastro de motores (cilindrada, potência) e tipo de combustível.")
 @RestController
 @RequestMapping("/engines")
 public class EngineController {

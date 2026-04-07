@@ -14,7 +14,7 @@ import senac.dws.veiculos.entities.Documentacao;
 import senac.dws.veiculos.hateoas.DocumentacaoModelAssembler;
 import senac.dws.veiculos.services.DocumentacaoService;
 
-@Tag(name = "Documentação", description = "CRUD de documentação (1:1 com veículo)")
+@Tag(name = "Documentacao", description = "Operações para documentação regulatória ligada a um único veículo (1:1).")
 @RestController
 @RequestMapping("/documentacoes")
 public class DocumentacaoController {

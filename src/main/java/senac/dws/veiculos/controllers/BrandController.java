@@ -17,7 +17,7 @@ import senac.dws.veiculos.services.BrandService;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-@Tag(name = "Marcas", description = "CRUD de marcas")
+@Tag(name = "Brand", description = "Operações para cadastro e consulta de marcas, vinculadas ao país de origem.")
 @RestController
 @RequestMapping("/brands")
 public class BrandController {

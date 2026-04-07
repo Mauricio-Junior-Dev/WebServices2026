@@ -1,18 +1,22 @@
 package senac.dws.veiculos.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
+@Schema(description = "Tipo de combustível (referência para motores).")
 @Entity
 public class FuelType {
 
+    @Schema(description = "Chave primária", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Schema(description = "Nome do combustível", example = "Flex (etanol/gasolina)")
     @NotBlank
     @Size(min = 1, max = 60)
     @Column(nullable = false, length = 60)

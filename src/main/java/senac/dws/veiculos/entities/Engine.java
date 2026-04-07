@@ -1,5 +1,6 @@
 package senac.dws.veiculos.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -8,25 +9,31 @@ import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
+@Schema(description = "Motor: tipo, cilindrada, potência e tipo de combustível.")
 @Entity
 public class Engine {
+    @Schema(description = "Chave primária", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Schema(description = "Denominação ou família do motor", example = "1.0 TURBO 200 Flex")
     @NotBlank
     @Size(min = 1, max = 120)
     @Column(nullable = false, length = 120)
     private String type;
 
+    @Schema(description = "Cilindrada em litros", example = "1.0", minimum = "0")
     @NotNull
     @Min(0)
     private Double displacement;
 
+    @Schema(description = "Potência (cv)", example = "120", minimum = "1")
     @NotNull
     @Min(1)
     private Integer horsepower;
 
+    @Schema(description = "Tipo de combustível (ex.: {\"id\": 1})")
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fuel_type_id", nullable = false)

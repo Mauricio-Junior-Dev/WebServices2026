@@ -1,18 +1,22 @@
 package senac.dws.veiculos.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
+@Schema(description = "País utilizado como referência geográfica para marcas.")
 @Entity
 public class Country {
 
+    @Schema(description = "Chave primária", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Schema(description = "Nome oficial ou usual do país", example = "Brasil", minLength = 2, maxLength = 80)
     @NotBlank
     @Size(min = 2, max = 80)
     @Column(unique = true, nullable = false, length = 80)

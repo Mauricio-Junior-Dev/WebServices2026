@@ -64,7 +64,7 @@ public class LoadDatabase {
 
             Documentacao doc = new Documentacao();
             doc.setNumeroRegistro("REG-2024-COROLLA-001");
-            doc.setObservacao("Documentação de exemplo carregada pelo CommandLineRunner");
+            doc.setObservacao("Documentação de exemplo");
             v1.setDocumentacao(doc);
 
             vehicleRepository.save(v1);

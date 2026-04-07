@@ -14,7 +14,7 @@ import senac.dws.veiculos.entities.FuelType;
 import senac.dws.veiculos.hateoas.FuelTypeModelAssembler;
 import senac.dws.veiculos.services.FuelTypeService;
 
-@Tag(name = "Combustíveis", description = "CRUD de tipos de combustível")
+@Tag(name = "FuelType", description = "Operações para tipos de combustível referenciados pelos motores.")
 @RestController
 @RequestMapping("/fuel-types")
 public class FuelTypeController {

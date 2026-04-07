@@ -1,6 +1,7 @@
 package senac.dws.veiculos.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.hateoas.EntityModel;
@@ -14,7 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-@Tag(name = "Demo", description = "Endpoint de saudação (exemplo)")
+@Tag(name = "Demo", description = "Endpoint demonstrativo de saudação com links HATEOAS.")
 @RestController
 public class GreetingController {
     private static final String template = "Hello, %s!";
@@ -31,8 +32,11 @@ public class GreetingController {
         return ResponseEntity.ok(model);
     }
 
+    @Schema(description = "Resposta de saudação com contador de requisições")
     public static class Greeting {
+        @Schema(description = "Contador incremental", example = "42")
         public long id;
+        @Schema(description = "Mensagem formatada", example = "Hello, Mundo!")
         public String text;
 
         public Greeting(long id, String text) {

@@ -17,7 +17,7 @@ import senac.dws.veiculos.services.AcessorioService;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-@Tag(name = "Acessórios", description = "CRUD de acessórios (N:N com veículos)")
+@Tag(name = "Acessorio", description = "Operações para acessórios opcionais do veículo (associação N:N).")
 @RestController
 @RequestMapping("/acessorios")
 public class AcessorioController {

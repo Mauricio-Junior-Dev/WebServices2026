@@ -1,18 +1,22 @@
 package senac.dws.veiculos.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
+@Schema(description = "Categoria ou segmento do veículo (ex.: SUV, sedã).")
 @Entity
 public class Category {
 
+    @Schema(description = "Chave primária", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Schema(description = "Nome da categoria", example = "SUV compacto", minLength = 2, maxLength = 80)
     @NotBlank
     @Size(min = 2, max = 80)
     @Column(nullable = false, length = 80)
