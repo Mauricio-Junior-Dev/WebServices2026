@@ -19,13 +19,20 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long>, PagingA
 
     List<Vehicle> findByPriceLessThan(Double price);
 
+    /**
+     * Carrega associações necessárias para serialização JSON (evita LazyInitializationException
+     * quando {@code spring.jpa.open-in-view} está desativado), incluindo país da marca e
+     * tipo de combustível do motor.
+     */
     @Query("""
             select distinct v from Vehicle v
             left join fetch v.acessorios
             left join fetch v.documentacao
-            left join fetch v.brand
+            left join fetch v.brand b
+            left join fetch b.country
             left join fetch v.category
-            left join fetch v.engine
+            left join fetch v.engine e
+            left join fetch e.fuelType
             where v.id = :id
             """)
     Optional<Vehicle> findDetailById(@Param("id") Long id);

@@ -33,7 +33,7 @@ public class Acessorio {
 
     @Schema(description = "Lista de veículos (não exposta na serialização JSON)", hidden = true)
     @ManyToMany(mappedBy = "acessorios")
-    @JsonIgnore
+    @JsonIgnore // Se o Veículo chama o Acessório e o Acessório chama o Veículo, o JSON nunca para de carregar e derruba a aplicação
     private Set<Vehicle> vehicles = new HashSet<>();
 
     public Acessorio() {

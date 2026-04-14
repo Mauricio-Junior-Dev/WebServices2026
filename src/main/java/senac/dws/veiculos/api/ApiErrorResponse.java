@@ -6,26 +6,19 @@ import java.time.LocalDateTime;
 
 @Schema(
         name = "ApiErrorResponse",
-        description = "Corpo JSON padrão retornado pelo tratamento global de erros (ex.: 409 Conflito, 404 Não encontrado).",
-        example = """
-                {
-                  "timestamp": "2026-04-07T14:30:00",
-                  "status": 409,
-                  "error": "Conflict",
-                  "message": "Já existe uma marca cadastrada com este nome."
-                }""")
+        description = "Corpo JSON padrão retornado pelo tratamento global de erros. O campo \"status\" espelha o código HTTP real da resposta (400, 404, 409, 500, etc.).")
 public class ApiErrorResponse {
 
     @Schema(description = "Data e hora do erro no servidor", example = "2026-04-07T14:30:00")
     private LocalDateTime timestamp;
 
-    @Schema(description = "Código HTTP", example = "409")
+    @Schema(description = "Código HTTP da resposta", example = "404")
     private int status;
 
-    @Schema(description = "Razão breve do status HTTP", example = "Conflict")
+    @Schema(description = "Razão breve do status HTTP", example = "Not Found")
     private String error;
 
-    @Schema(description = "Mensagem descritiva para o cliente", example = "Já existe um país cadastrado com este nome.")
+    @Schema(description = "Mensagem descritiva para o cliente", example = "Recurso não encontrado.")
     private String message;
 
     public LocalDateTime getTimestamp() {
