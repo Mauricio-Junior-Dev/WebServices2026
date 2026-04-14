@@ -33,6 +33,11 @@ public class FuelTypeController {
 
     @Operation(summary = "Lista tipos de combustível paginado")
     @ApiResponse(responseCode = "200", description = "Página")
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<FuelType>>> list(Pageable pageable,
                                                                   PagedResourcesAssembler<FuelType> pagedResourcesAssembler) {
@@ -41,7 +46,16 @@ public class FuelTypeController {
 
     @Operation(summary = "Busca por id")
     @ApiResponse(responseCode = "200", description = "Encontrado")
-    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<FuelType>> getById(@PathVariable Long id) {
         return ResponseEntity.ok(assembler.toModel(fuelTypeService.findById(id)));
@@ -49,12 +63,21 @@ public class FuelTypeController {
 
     @Operation(summary = "Cria tipo")
     @ApiResponse(responseCode = "201", description = "Criado")
-    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Dados inválidos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(
             responseCode = "409",
             description = "Conflito: Já existe um registro com este nome/identificador",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ApiErrorResponse.class)))
     @PostMapping
     public ResponseEntity<EntityModel<FuelType>> create(@Valid @RequestBody FuelType fuelType) {
@@ -67,7 +90,26 @@ public class FuelTypeController {
 
     @Operation(summary = "Atualiza tipo")
     @ApiResponse(responseCode = "200", description = "Atualizado")
-    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Dados inválidos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "409",
+            description = "Conflito de nome",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<FuelType>> update(@PathVariable Long id, @Valid @RequestBody FuelType fuelType) {
         FuelType saved = fuelTypeService.update(id, fuelType);
@@ -76,15 +118,30 @@ public class FuelTypeController {
 
     @Operation(summary = "Remove tipo")
     @ApiResponse(responseCode = "204", description = "Removido")
-    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         fuelTypeService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Busca por nome (paginado)")
+    @Operation(summary = "Busca por nome (paginado)",
+            description = "Parâmetros padrões de paginação: page, size e sort. Retorna 200 com página vazia quando não há resultados.")
     @ApiResponse(responseCode = "200", description = "Página filtrada")
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping("/search")
     public ResponseEntity<PagedModel<EntityModel<FuelType>>> search(@RequestParam String name, Pageable pageable,
                                                                     PagedResourcesAssembler<FuelType> pagedResourcesAssembler) {

@@ -36,6 +36,11 @@ public class BrandController {
 
     @Operation(summary = "Lista marcas paginado")
     @ApiResponse(responseCode = "200", description = "Página de marcas")
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<Brand>>> list(Pageable pageable,
                                                                 PagedResourcesAssembler<Brand> pagedResourcesAssembler) {
@@ -44,7 +49,16 @@ public class BrandController {
 
     @Operation(summary = "Busca marca por id")
     @ApiResponse(responseCode = "200", description = "Encontrada")
-    @ApiResponse(responseCode = "404", description = "Não encontrada")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrada",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Brand>> getById(@PathVariable Long id) {
         return ResponseEntity.ok(assembler.toModel(brandService.findById(id)));
@@ -52,13 +66,26 @@ public class BrandController {
 
     @Operation(summary = "Cria marca")
     @ApiResponse(responseCode = "201", description = "Criada")
-    @ApiResponse(responseCode = "400", description = "Requisição inválida")
-    @ApiResponse(responseCode = "404", description = "País não encontrado")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Requisição inválida",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "404",
+            description = "País não encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(
             responseCode = "409",
             description = "Conflito: Já existe um registro com este nome/identificador",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ApiErrorResponse.class)))
     @PostMapping
     public ResponseEntity<EntityModel<Brand>> create(@Valid @RequestBody Brand brand) {
@@ -71,7 +98,26 @@ public class BrandController {
 
     @Operation(summary = "Atualiza marca")
     @ApiResponse(responseCode = "200", description = "Atualizada")
-    @ApiResponse(responseCode = "404", description = "Não encontrada")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Requisição inválida",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrada",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "409",
+            description = "Conflito de nome",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Brand>> update(@PathVariable Long id, @Valid @RequestBody Brand brand) {
         Brand saved = brandService.update(id, brand);
@@ -80,15 +126,30 @@ public class BrandController {
 
     @Operation(summary = "Remove marca")
     @ApiResponse(responseCode = "204", description = "Removida")
-    @ApiResponse(responseCode = "404", description = "Não encontrada")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrada",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         brandService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Busca marcas por nome")
+    @Operation(summary = "Busca marcas por nome",
+            description = "Retorna 200 com lista vazia quando não há correspondências.")
     @ApiResponse(responseCode = "200", description = "Resultados")
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping("/search")
     public ResponseEntity<CollectionModel<EntityModel<Brand>>> search(@RequestParam String name) {
         var list = brandService.searchByName(name).stream().map(assembler::toModel).toList();

@@ -42,7 +42,7 @@ public class Vehicle {
 
     @Schema(description = "Marca (na API REST normalmente basta informar o id, ex.: {\"id\": 1})")
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY) // FetchType.LAZY: carrega o objeto Brand somente quando necessário
     @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
 

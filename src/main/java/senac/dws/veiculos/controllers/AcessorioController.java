@@ -36,6 +36,11 @@ public class AcessorioController {
 
     @Operation(summary = "Lista acessórios paginado")
     @ApiResponse(responseCode = "200", description = "Página")
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<Acessorio>>> list(Pageable pageable,
                                                                    PagedResourcesAssembler<Acessorio> pagedResourcesAssembler) {
@@ -44,7 +49,16 @@ public class AcessorioController {
 
     @Operation(summary = "Busca por id")
     @ApiResponse(responseCode = "200", description = "Encontrado")
-    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Acessorio>> getById(@PathVariable Long id) {
         return ResponseEntity.ok(assembler.toModel(acessorioService.findById(id)));
@@ -52,12 +66,21 @@ public class AcessorioController {
 
     @Operation(summary = "Cria acessório")
     @ApiResponse(responseCode = "201", description = "Criado")
-    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Dados inválidos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(
             responseCode = "409",
             description = "Conflito: Já existe um registro com este nome/identificador",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ApiErrorResponse.class)))
     @PostMapping
     public ResponseEntity<EntityModel<Acessorio>> create(@Valid @RequestBody Acessorio acessorio) {
@@ -70,7 +93,26 @@ public class AcessorioController {
 
     @Operation(summary = "Atualiza acessório")
     @ApiResponse(responseCode = "200", description = "Atualizado")
-    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Dados inválidos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "409",
+            description = "Conflito de nome",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Acessorio>> update(@PathVariable Long id, @Valid @RequestBody Acessorio acessorio) {
         Acessorio saved = acessorioService.update(id, acessorio);
@@ -79,15 +121,30 @@ public class AcessorioController {
 
     @Operation(summary = "Remove acessório")
     @ApiResponse(responseCode = "204", description = "Removido")
-    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         acessorioService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Busca por nome (lista)")
+    @Operation(summary = "Busca por nome (lista)",
+            description = "Retorna 200 com lista vazia quando não há correspondências.")
     @ApiResponse(responseCode = "200", description = "Resultados")
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping("/search")
     public ResponseEntity<CollectionModel<EntityModel<Acessorio>>> search(@RequestParam String nome) {
         var list = acessorioService.searchByNome(nome).stream().map(assembler::toModel).toList();

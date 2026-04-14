@@ -33,6 +33,11 @@ public class EngineController {
 
     @Operation(summary = "Lista motores paginado")
     @ApiResponse(responseCode = "200", description = "Página")
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<Engine>>> list(Pageable pageable,
                                                                 PagedResourcesAssembler<Engine> pagedResourcesAssembler) {
@@ -41,7 +46,16 @@ public class EngineController {
 
     @Operation(summary = "Busca motor por id")
     @ApiResponse(responseCode = "200", description = "Encontrado")
-    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Engine>> getById(@PathVariable Long id) {
         return ResponseEntity.ok(assembler.toModel(engineService.findById(id)));
@@ -49,13 +63,26 @@ public class EngineController {
 
     @Operation(summary = "Cria motor")
     @ApiResponse(responseCode = "201", description = "Criado")
-    @ApiResponse(responseCode = "400", description = "Dados inválidos")
-    @ApiResponse(responseCode = "404", description = "Combustível não encontrado")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Dados inválidos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "404",
+            description = "Combustível não encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(
             responseCode = "409",
             description = "Conflito: Já existe um registro com este nome/identificador",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ApiErrorResponse.class)))
     @PostMapping
     public ResponseEntity<EntityModel<Engine>> create(@Valid @RequestBody Engine engine) {
@@ -68,7 +95,26 @@ public class EngineController {
 
     @Operation(summary = "Atualiza motor")
     @ApiResponse(responseCode = "200", description = "Atualizado")
-    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Dados inválidos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "409",
+            description = "Conflito de dados",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Engine>> update(@PathVariable Long id, @Valid @RequestBody Engine engine) {
         Engine saved = engineService.update(id, engine);
@@ -77,15 +123,30 @@ public class EngineController {
 
     @Operation(summary = "Remove motor")
     @ApiResponse(responseCode = "204", description = "Removido")
-    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         engineService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Busca motores por tipo (paginado)")
+    @Operation(summary = "Busca motores por tipo (paginado)",
+            description = "Parâmetros padrões de paginação: page, size e sort. Retorna 200 com página vazia quando não há resultados.")
     @ApiResponse(responseCode = "200", description = "Página filtrada")
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping("/search")
     public ResponseEntity<PagedModel<EntityModel<Engine>>> search(@RequestParam String type, Pageable pageable,
                                                                   PagedResourcesAssembler<Engine> pagedResourcesAssembler) {

@@ -36,6 +36,11 @@ public class CountryController {
 
     @Operation(summary = "Lista países paginado")
     @ApiResponse(responseCode = "200", description = "Página")
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<Country>>> list(Pageable pageable,
                                                                    PagedResourcesAssembler<Country> pagedResourcesAssembler) {
@@ -44,7 +49,16 @@ public class CountryController {
 
     @Operation(summary = "Busca país por id")
     @ApiResponse(responseCode = "200", description = "Encontrado")
-    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Country>> getById(@PathVariable Long id) {
         return ResponseEntity.ok(assembler.toModel(countryService.findById(id)));
@@ -52,12 +66,21 @@ public class CountryController {
 
     @Operation(summary = "Cria país")
     @ApiResponse(responseCode = "201", description = "Criado")
-    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Dados inválidos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(
             responseCode = "409",
             description = "Conflito: Já existe um registro com este nome/identificador",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ApiErrorResponse.class)))
     @PostMapping
     public ResponseEntity<EntityModel<Country>> create(@Valid @RequestBody Country country) {
@@ -70,8 +93,26 @@ public class CountryController {
 
     @Operation(summary = "Atualiza país")
     @ApiResponse(responseCode = "200", description = "Atualizado")
-    @ApiResponse(responseCode = "404", description = "Não encontrado")
-    @ApiResponse(responseCode = "409", description = "Conflito de nome")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Dados inválidos",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "409",
+            description = "Conflito de nome",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Country>> update(@PathVariable Long id, @Valid @RequestBody Country country) {
         Country saved = countryService.update(id, country);
@@ -80,15 +121,30 @@ public class CountryController {
 
     @Operation(summary = "Remove país")
     @ApiResponse(responseCode = "204", description = "Removido")
-    @ApiResponse(responseCode = "404", description = "Não encontrado")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Não encontrado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         countryService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Busca países por nome")
+    @Operation(summary = "Busca países por nome",
+            description = "Retorna 200 com lista vazia quando não há correspondências.")
     @ApiResponse(responseCode = "200", description = "Resultados")
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping("/search")
     public ResponseEntity<CollectionModel<EntityModel<Country>>> search(@RequestParam String name) {
         var list = countryService.searchByName(name).stream().map(assembler::toModel).toList();
