@@ -23,9 +23,9 @@ import senac.dws.veiculos.services.VehicleService;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-@Tag(name = "Vehicle", description = "Operações para gerenciamento de veículos, estoque e vínculos com marca, categoria, motor, documentação e acessórios.")
+@Tag(name = "Vehicle v1", description = "Operações para gerenciamento de veículos (API v1), estoque e vínculos com marca, categoria, motor, documentação e acessórios.")
 @RestController
-@RequestMapping("/vehicles")
+@RequestMapping("/api/v1/vehicles")
 public class VehicleController {
 
     private final VehicleService vehicleService;

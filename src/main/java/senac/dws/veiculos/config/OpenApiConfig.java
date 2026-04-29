@@ -4,6 +4,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.tags.Tag;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,8 +35,10 @@ public class OpenApiConfig {
                                 .name(contactName)
                                 .email(contactEmail)))
                 .tags(List.of(
-                        new Tag().name("Vehicle")
-                                .description("Veículos: estoque, consultas filtradas, vínculos com marca, categoria, motor, documentação e acessórios."),
+                        new Tag().name("Vehicle v1")
+                                .description("Veículos (API v1): contrato completo com HATEOAS, estoque e vínculos."),
+                        new Tag().name("Vehicle v2")
+                                .description("Veículos (API v2): listagem com DTO resumido (id, name, price)."),
                         new Tag().name("Brand")
                                 .description("Marcas automotivas associadas a países de origem."),
                         new Tag().name("Country")
@@ -52,5 +55,23 @@ public class OpenApiConfig {
                                 .description("Registro documental em relação 1:1 com veículo."),
                         new Tag().name("Demo")
                                 .description("Endpoint ilustrativo com HATEOAS básico.")));
+    }
+
+    @Bean
+    public GroupedOpenApi apiV1Group() {
+        return GroupedOpenApi.builder()
+                .group("api-v1")
+                .displayName("API v1")
+                .pathsToMatch("/api/v1/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi apiV2Group() {
+        return GroupedOpenApi.builder()
+                .group("api-v2")
+                .displayName("API v2")
+                .pathsToMatch("/api/v2/**")
+                .build();
     }
 }

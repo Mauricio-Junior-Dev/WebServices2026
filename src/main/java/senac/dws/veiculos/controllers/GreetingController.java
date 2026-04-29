@@ -23,7 +23,7 @@ public class GreetingController {
 
     @Operation(summary = "Retorna uma saudação com contador")
     @ApiResponse(responseCode = "200", description = "Saudação gerada")
-    @GetMapping("/greetings")
+    @GetMapping("/api/v1/greetings")
     public ResponseEntity<EntityModel<Greeting>> greeting(
             @RequestParam(defaultValue = "Oláaaaaa") String text) {
         Greeting body = new Greeting(counter.incrementAndGet(), template.formatted(text));

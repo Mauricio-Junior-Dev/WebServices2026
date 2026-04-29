@@ -20,7 +20,7 @@ import senac.dws.veiculos.services.FuelTypeService;
 
 @Tag(name = "FuelType", description = "Operações para tipos de combustível referenciados pelos motores.")
 @RestController
-@RequestMapping("/fuel-types")
+@RequestMapping("/api/v1/fuel-types")
 public class FuelTypeController {
 
     private final FuelTypeService fuelTypeService;
