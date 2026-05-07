@@ -8,8 +8,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import senac.dws.veiculos.exceptions.InvalidRequestException;
 
 /**
- * Para requisições POST com cabeçalho {@value #HEADER_NAME}, reserva a chave no banco antes do controller.
- * Sem o cabeçalho, a requisição segue normalmente (idempotência opcional).
+ * POST + cabeçalho {@value #HEADER_NAME} → tenta registrar a chave no banco antes do controller.
+ * Sem cabeçalho, o fluxo segue normal (idempotência opcional).
  */
 @Component
 public class IdempotencyKeyInterceptor implements HandlerInterceptor {
@@ -43,7 +43,7 @@ public class IdempotencyKeyInterceptor implements HandlerInterceptor {
             throw new InvalidRequestException("Idempotency-Key excede " + MAX_KEY_LENGTH + " caracteres");
         }
 
-        idempotencyKeyService.registerIfAbsent(key);
+        idempotencyKeyService.tryRegisterKey(key);
         return true;
     }
 }

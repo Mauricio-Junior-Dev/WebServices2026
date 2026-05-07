@@ -7,10 +7,6 @@ import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 
-/**
- * Registro mínimo de chave de idempotência enviada pelo cliente (cabeçalho Idempotency-Key).
- * A própria PK garante que a mesma chave não seja aceita duas vezes.
- */
 @Entity
 @Table(name = "idempotency_key")
 public class IdempotencyKey {
