@@ -35,7 +35,12 @@ public class OpenApiConfig {
                 **Idempotência (POST em `/api/**`):** em qualquer POST pode ser enviado o cabeçalho opcional \
                 `Idempotency-Key` (string, até 128 caracteres). A mesma chave não pode ser reutilizada; \
                 uma segunda tentativa com a mesma chave recebe **409 Conflict**. Chaves acima do limite \
-                resultam em **400 Bad Request**.""";
+                resultam em **400 Bad Request**.
+
+                **Limite de taxa (`/api/**`):** pedidos são contados por cliente (por defeito o IP da ligação). \
+                Quando o limite é excedido a API responde **429 Too Many Requests** com cabeçalhos \
+                `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` e `Retry-After` (segundos). \
+                Isto é independente da idempotência (429 = volume; 409 = operação duplicada).""";
 
         return new OpenAPI()
                 .info(new Info()

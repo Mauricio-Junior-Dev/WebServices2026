@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Schema(
         name = "ApiErrorResponse",
-        description = "Corpo JSON padrão retornado pelo tratamento global de erros. O campo \"status\" espelha o código HTTP real da resposta (400, 404, 409, 500, etc.).")
+        description = "Corpo JSON padrão retornado pelo tratamento global de erros ou pelo filtro de rate limiting. O campo \"status\" espelha o código HTTP real da resposta (400, 404, 409, 429, 500, etc.).")
 public class ApiErrorResponse {
 
     @Schema(description = "Data e hora do erro no servidor", example = "2026-04-07T14:30:00")
