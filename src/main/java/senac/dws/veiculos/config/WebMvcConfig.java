@@ -5,6 +5,10 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import senac.dws.veiculos.idempotency.IdempotencyKeyInterceptor;
 
+/**
+ * Registo de interceptores transversais à API. Idempotência de POST vive aqui;
+ * limitação de taxa (por IP, 429, cabeçalhos de quota) deve ser um interceptor/filtro separado.
+ */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 

@@ -11,17 +11,6 @@ import senac.dws.veiculos.exceptions.ConflictException;
 
 import java.time.LocalDateTime;
 
-/**
- * Registra a chave com um INSERT. A coluna {@code key} é PK única no banco:
- * se a chave já existir, o banco (via JPA na {@code flush}) gera erro de integridade
- * e convertemos em HTTP 409.
- * <p>
- * Usamos {@link EntityManager#persist} em vez de {@code repository.save}, porque com
- * identificador já preenchido o {@code save} do Spring Data pode fazer {@code merge}
- * (atualizar) em vez de inserir — e aí não haveria violação de unicidade.
- * <p>
- * Nos controllers, você pode chamar {@link #tryRegisterKey(String)} no início do método POST.
- */
 @Service
 public class IdempotencyKeyService {
 

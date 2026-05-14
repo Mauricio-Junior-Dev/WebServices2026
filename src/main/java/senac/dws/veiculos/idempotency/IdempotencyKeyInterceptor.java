@@ -8,8 +8,16 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import senac.dws.veiculos.exceptions.InvalidRequestException;
 
 /**
- * POST + cabeçalho {@value #HEADER_NAME} → tenta registrar a chave no banco antes do controller.
- * Sem cabeçalho, o fluxo segue normal (idempotência opcional).
+ * <p><strong>Idempotência (não é rate limiting)</strong> — POST com cabeçalho {@value #HEADER_NAME}
+ * tenta gravar a chave na base antes do controller. Chave repetida → {@code 409 Conflict}
+ * ({@link senac.dws.veiculos.exceptions.ConflictException}): significa “esta mesma operação lógica
+ * já foi aceite”, não “estás a pedir demasiado por segundo”.</p>
+ *
+ * <p><strong>Rate limiting</strong> (limite por IP/cliente, {@code 429 Too Many Requests},
+ * cabeçalhos tipo {@code X-RateLimit-*}, {@code Retry-After}) é outro conceito: protege a infraestrutura
+ * contra abuso de volume; deve ser implementado à parte (filtro/interceptor ou API gateway).</p>
+ *
+ * <p>Sem cabeçalho, o fluxo segue normal (idempotência opcional).</p>
  */
 @Component
 public class IdempotencyKeyInterceptor implements HandlerInterceptor {
