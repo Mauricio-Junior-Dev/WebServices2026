@@ -23,7 +23,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @Tag(name = "Brand", description = "Operações para cadastro e consulta de marcas, vinculadas ao país de origem.")
 @RestController
-@RequestMapping("/api/v1/brands")
+@RequestMapping("/api/brands")
 public class BrandController {
 
     private final BrandService brandService;

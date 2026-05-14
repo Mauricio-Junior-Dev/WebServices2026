@@ -1,6 +1,8 @@
 package senac.dws.veiculos.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,6 +10,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
@@ -17,15 +20,24 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import senac.dws.veiculos.api.ApiErrorResponse;
+import senac.dws.veiculos.api.ApiVersionHeaders;
+import senac.dws.veiculos.api.v2.dto.VehicleListItemV2Dto;
 import senac.dws.veiculos.entities.Vehicle;
+import senac.dws.veiculos.exceptions.InvalidRequestException;
 import senac.dws.veiculos.hateoas.VehicleModelAssembler;
 import senac.dws.veiculos.services.VehicleService;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-@Tag(name = "Vehicle v1", description = "Operações para gerenciamento de veículos (API v1), estoque e vínculos com marca, categoria, motor, documentação e acessórios.")
+/**
+ * Veículos sob {@code /api/vehicles}. A listagem ({@code GET} na raiz do recurso) admite duas
+ * versões de contrato via cabeçalho {@link ApiVersionHeaders#NAME} — ver os dois métodos
+ * {@code list...} abaixo.
+ */
+@Tag(name = "Vehicle", description = "CRUD e buscas de veículos. Na listagem paginada, use o cabeçalho "
+        + ApiVersionHeaders.NAME + " para escolher o formato da resposta (1 = HATEOAS completo, 2 = resumo).")
 @RestController
-@RequestMapping("/api/v1/vehicles")
+@RequestMapping("/api/vehicles")
 public class VehicleController {
 
     private final VehicleService vehicleService;
@@ -36,21 +48,84 @@ public class VehicleController {
         this.assembler = assembler;
     }
 
+    /**
+     * Listagem “versão 1”: HATEOAS + entidade completa. É o comportamento por omissão quando o cliente
+     * não envia {@link ApiVersionHeaders#NAME}, ou quando envia o valor {@link ApiVersionHeaders#V1}.
+     * <p>Pedidos com {@code X-API-Version=2} são tratados pelo outro {@code @GetMapping} (Spring escolhe
+     * o método mais específico pelo cabeçalho).</p>
+     */
     @Operation(
-            summary = "Lista veículos com paginação e ordenação",
-            description = "Parâmetros padrões de paginação: page (base 0), size e sort (ex.: sort=name,asc). " +
-                    "Quando não há resultados, retorna 200 com lista vazia.")
-    @ApiResponse(responseCode = "200", description = "Página de veículos")
+            summary = "Lista veículos (versão 1 — HATEOAS)",
+            description = "Cabeçalho opcional `" + ApiVersionHeaders.NAME + "`: omitir ou `"
+                    + ApiVersionHeaders.V1 + "`. Parâmetros de paginação: page (base 0), size e sort (ex.: sort=name,asc).")
+    @Parameter(
+            name = ApiVersionHeaders.NAME,
+            in = ParameterIn.HEADER,
+            required = false,
+            description = "Omitir ou `" + ApiVersionHeaders.V1 + "` para este contrato. Outros valores (exceto `"
+                    + ApiVersionHeaders.V2 + "`) geram 400.")
+    @ApiResponse(responseCode = "200", description = "Página de veículos (HATEOAS)")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Valor de " + ApiVersionHeaders.NAME + " não suportado nesta listagem",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
     @ApiResponse(
             responseCode = "500",
             description = "Erro interno inesperado",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ApiErrorResponse.class)))
     @GetMapping
-    public ResponseEntity<PagedModel<EntityModel<Vehicle>>> list(Pageable pageable,
-                                                                 PagedResourcesAssembler<Vehicle> pagedResourcesAssembler) {
+    public ResponseEntity<PagedModel<EntityModel<Vehicle>>> listV1(
+            @RequestHeader(value = ApiVersionHeaders.NAME, required = false) String apiVersion,
+            Pageable pageable,
+            PagedResourcesAssembler<Vehicle> pagedResourcesAssembler) {
+        assertSupportedVersionForV1List(apiVersion);
         var page = vehicleService.findAll(pageable);
         return ResponseEntity.ok(pagedResourcesAssembler.toModel(page, assembler));
+    }
+
+    /**
+     * Listagem “versão 2”: mesma URL que {@link #listV1}, mas o Spring só encaminha para aqui quando o
+     * pedido traz explicitamente {@code X-API-Version=2} (condição {@code headers} no {@code @GetMapping}).
+     */
+    @Operation(
+            summary = "Lista veículos (versão 2 — resumo)",
+            description = "Exige o cabeçalho `" + ApiVersionHeaders.NAME + ": " + ApiVersionHeaders.V2
+                    + "`. Cada item contém apenas id, name e price.")
+    @Parameter(
+            name = ApiVersionHeaders.NAME,
+            in = ParameterIn.HEADER,
+            required = true,
+            description = "Deve ser exatamente `" + ApiVersionHeaders.V2 + "` para este contrato.")
+    @ApiResponse(responseCode = "200", description = "Página de resumos (Spring Data Page JSON)")
+    @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno inesperado",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ApiErrorResponse.class)))
+    @GetMapping(headers = ApiVersionHeaders.SPRING_HEADER_MATCH_V2)
+    public ResponseEntity<Page<VehicleListItemV2Dto>> listV2(Pageable pageable) {
+        Page<VehicleListItemV2Dto> page = vehicleService.findAll(pageable).map(VehicleListItemV2Dto::from);
+        return ResponseEntity.ok(page);
+    }
+
+    /**
+     * Garante que, se o cliente mandar {@link ApiVersionHeaders#NAME}, só aceitamos “1” neste método
+     * (o “2” nunca chega aqui). Qualquer outro valor → 400 com mensagem clara.
+     */
+    private static void assertSupportedVersionForV1List(String apiVersion) {
+        if (apiVersion == null || apiVersion.isBlank()) {
+            return;
+        }
+        String v = apiVersion.trim();
+        if (ApiVersionHeaders.V1.equals(v)) {
+            return;
+        }
+        throw new InvalidRequestException(
+                ApiVersionHeaders.NAME + " inválida para esta listagem: use \""
+                        + ApiVersionHeaders.V1 + "\" ou \""
+                        + ApiVersionHeaders.V2 + "\".");
     }
 
     @Operation(summary = "Busca veículo por id")

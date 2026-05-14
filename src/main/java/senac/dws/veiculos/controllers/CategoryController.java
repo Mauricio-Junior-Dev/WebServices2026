@@ -20,7 +20,7 @@ import senac.dws.veiculos.services.CategoryService;
 
 @Tag(name = "Category", description = "Operações sobre categorias de veículo (classificação comercial/técnica).")
 @RestController
-@RequestMapping("/api/v1/categories")
+@RequestMapping("/api/categories")
 public class CategoryController {
 
     private final CategoryService categoryService;

@@ -3,7 +3,7 @@ package senac.dws.veiculos.api.v2.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import senac.dws.veiculos.entities.Vehicle;
 
-@Schema(description = "Resumo de veículo na API v2 (somente listagem).")
+@Schema(description = "Resumo de veículo na listagem com cabeçalho X-API-Version: 2 (ver GET /api/vehicles).")
 public record VehicleListItemV2Dto(
         @Schema(description = "Identificador", example = "1") Long id,
         @Schema(description = "Nome ou modelo comercial", example = "Corolla XEi 2.0") String name,

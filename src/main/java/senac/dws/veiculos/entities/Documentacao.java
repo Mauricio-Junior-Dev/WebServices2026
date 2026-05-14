@@ -29,7 +29,7 @@ public class Documentacao {
     @Column(length = 2000)
     private String observacao;
 
-    @Schema(description = "Veículo associado — na criação via POST /api/v1/documentacoes informe apenas {\"id\": <id do veículo>}. Não aparece na resposta JSON.")
+    @Schema(description = "Veículo associado — na criação via POST /api/documentacoes informe apenas {\"id\": <id do veículo>}. Não aparece na resposta JSON.")
     @OneToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id", unique = true, nullable = false)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

@@ -23,7 +23,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @Tag(name = "Acessorio", description = "Operações para acessórios opcionais do veículo (associação N:N).")
 @RestController
-@RequestMapping("/api/v1/acessorios")
+@RequestMapping("/api/acessorios")
 public class AcessorioController {
 
     private final AcessorioService acessorioService;

@@ -22,7 +22,7 @@ import senac.dws.veiculos.services.DocumentacaoService;
 
 @Tag(name = "Documentacao", description = "Operações para documentação regulatória ligada a um único veículo (1:1).")
 @RestController
-@RequestMapping("/api/v1/documentacoes")
+@RequestMapping("/api/documentacoes")
 public class DocumentacaoController {
 
     private final DocumentacaoService documentacaoService;

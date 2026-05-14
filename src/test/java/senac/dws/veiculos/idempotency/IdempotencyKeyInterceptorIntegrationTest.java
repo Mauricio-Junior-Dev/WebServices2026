@@ -26,13 +26,13 @@ class IdempotencyKeyInterceptorIntegrationTest {
         String name = "Pais-Idem-" + UUID.randomUUID();
         String json = "{\"name\":\"" + name + "\"}";
 
-        mockMvc.perform(post("/api/v1/countries")
+        mockMvc.perform(post("/api/countries")
                         .header(IdempotencyKeyInterceptor.HEADER_NAME, key)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/api/v1/countries")
+        mockMvc.perform(post("/api/countries")
                         .header(IdempotencyKeyInterceptor.HEADER_NAME, key)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
@@ -43,7 +43,7 @@ class IdempotencyKeyInterceptorIntegrationTest {
     @Test
     void postWithoutIdempotencyKey_stillWorks() throws Exception {
         String name = "Pais-SemHeader-" + UUID.randomUUID();
-        mockMvc.perform(post("/api/v1/countries")
+        mockMvc.perform(post("/api/countries")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"" + name + "\"}"))
                 .andExpect(status().isCreated())

@@ -20,7 +20,7 @@ import senac.dws.veiculos.services.EngineService;
 
 @Tag(name = "Engine", description = "Operações para cadastro de motores (cilindrada, potência) e tipo de combustível.")
 @RestController
-@RequestMapping("/api/v1/engines")
+@RequestMapping("/api/engines")
 public class EngineController {
 
     private final EngineService engineService;

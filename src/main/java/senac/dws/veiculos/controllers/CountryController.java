@@ -23,7 +23,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @Tag(name = "Country", description = "Operações para manutenção da tabela de países utilizada pelas marcas.")
 @RestController
-@RequestMapping("/api/v1/countries")
+@RequestMapping("/api/countries")
 public class CountryController {
 
     private final CountryService countryService;

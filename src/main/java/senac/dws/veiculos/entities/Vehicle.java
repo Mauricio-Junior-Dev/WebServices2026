@@ -58,7 +58,7 @@ public class Vehicle {
     @JoinColumn(name = "engine_id", nullable = false)
     private Engine engine;
 
-    @Schema(description = "Documentação 1:1; opcional na criação se cadastrada depois em /api/v1/documentacoes")
+    @Schema(description = "Documentação 1:1; opcional na criação se cadastrada depois em /api/documentacoes")
     @OneToOne(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Documentacao documentacao;
 

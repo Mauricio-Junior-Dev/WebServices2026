@@ -26,6 +26,12 @@ public class OpenApiConfig {
                 e ordenação via parâmetros `page`, `size` e `sort`, facilitando integração com clientes \
                 e portais administrativos.
 
+                **Versionamento (cabeçalho `X-API-Version`):** não há segmentos `/v1` ou `/v2` na URL. \
+                Na listagem `GET /api/vehicles`, o cliente escolhe o contrato: omitir o cabeçalho ou \
+                enviar `1` → página HATEOAS com entidade completa; enviar `2` → página no formato Spring Data \
+                com itens resumidos (`id`, `name`, `price`). Outros valores para esse cabeçalho na listagem \
+                geram **400 Bad Request**.
+
                 **Idempotência (POST em `/api/**`):** em qualquer POST pode ser enviado o cabeçalho opcional \
                 `Idempotency-Key` (string, até 128 caracteres). A mesma chave não pode ser reutilizada; \
                 uma segunda tentativa com a mesma chave recebe **409 Conflict**. Chaves acima do limite \
@@ -40,10 +46,9 @@ public class OpenApiConfig {
                                 .name(contactName)
                                 .email(contactEmail)))
                 .tags(List.of(
-                        new Tag().name("Vehicle v1")
-                                .description("Veículos (API v1): contrato completo com HATEOAS, estoque e vínculos."),
-                        new Tag().name("Vehicle v2")
-                                .description("Veículos (API v2): listagem com DTO resumido (id, name, price)."),
+                        new Tag().name("Vehicle")
+                                .description("Veículos: CRUD, buscas e listagem paginada com "
+                                        + "dois contratos via cabeçalho X-API-Version (omitir ou 1 = HATEOAS; 2 = resumo)."),
                         new Tag().name("Brand")
                                 .description("Marcas automotivas associadas a países de origem."),
                         new Tag().name("Country")
@@ -62,21 +67,13 @@ public class OpenApiConfig {
                                 .description("Endpoint ilustrativo com HATEOAS básico.")));
     }
 
+    /** Um único documento OpenAPI para tudo o que está sob `/api/**`. */
     @Bean
-    public GroupedOpenApi apiV1Group() {
+    public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
-                .group("api-v1")
-                .displayName("API v1")
-                .pathsToMatch("/api/v1/**")
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi apiV2Group() {
-        return GroupedOpenApi.builder()
-                .group("api-v2")
-                .displayName("API v2")
-                .pathsToMatch("/api/v2/**")
+                .group("api")
+                .displayName("API")
+                .pathsToMatch("/api/**")
                 .build();
     }
 }
