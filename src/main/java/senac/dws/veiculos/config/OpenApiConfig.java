@@ -24,7 +24,12 @@ public class OpenApiConfig {
                 marcas, categorias, fatores técnicos (motores e combustíveis), acessórios e documentação. \
                 As respostas seguem HATEOAS (Spring HATEOAS) e as listas principais suportam paginação \
                 e ordenação via parâmetros `page`, `size` e `sort`, facilitando integração com clientes \
-                e portais administrativos.""";
+                e portais administrativos.
+
+                **Idempotência (POST em `/api/**`):** em qualquer POST pode ser enviado o cabeçalho opcional \
+                `Idempotency-Key` (string, até 128 caracteres). A mesma chave não pode ser reutilizada; \
+                uma segunda tentativa com a mesma chave recebe **409 Conflict**. Chaves acima do limite \
+                resultam em **400 Bad Request**.""";
 
         return new OpenAPI()
                 .info(new Info()
